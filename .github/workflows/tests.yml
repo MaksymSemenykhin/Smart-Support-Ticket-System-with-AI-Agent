@@ -44,6 +44,11 @@ jobs:
       - name: Copy .env
         run: cp .env.example .env
 
+      - name: Configure .env for tests
+        run: |
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=root/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=testing/' .env
+
       - name: Install dependencies
         run: composer update --no-interaction
 
