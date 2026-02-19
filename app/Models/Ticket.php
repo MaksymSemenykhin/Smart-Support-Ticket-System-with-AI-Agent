@@ -19,6 +19,7 @@ class Ticket extends Model
     #[OA\Property(property: 'title', description: 'Ticket title', type: 'string')]
     #[OA\Property(property: 'description', description: 'Ticket description', type: 'string')]
     #[OA\Property(property: 'status', description: 'Ticket status', type: 'string', enum: ['open', 'in_progress', 'resolved', 'closed'])]
+    #[OA\Property(property: 'is_stale', description: 'Ticket is stale (not updated for 1 week)', type: 'boolean')]
     #[OA\Property(property: 'sentiment', description: 'AI detected sentiment', type: 'string', enum: ['Positive', 'Neutral', 'Negative'], nullable: true)]
     #[OA\Property(property: 'urgency', description: 'AI detected urgency', type: 'string', enum: ['low', 'medium', 'high'], nullable: true)]
     #[OA\Property(property: 'suggested_reply', description: 'AI suggested reply', type: 'string', nullable: true)]
@@ -32,6 +33,7 @@ class Ticket extends Model
         'title',
         'description',
         'status',
+        'is_stale',
         'sentiment',
         'urgency',
         'suggested_reply',
@@ -41,6 +43,7 @@ class Ticket extends Model
 
     protected $casts = [
         'status' => TicketStatus::class,
+        'is_stale' => 'boolean',
         'sentiment' => TicketSentiment::class,
         'urgency' => TicketUrgency::class,
         'ai_status' => AiStatus::class,
