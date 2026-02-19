@@ -1,0 +1,104 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Test (PHP ${{ matrix.php-versions }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.2', '8.3', '8.4']
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, zip, pdo, pdo_mysql, json, fileinfo
+          coverage: none
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Generate key
+        run: php artisan key:generate
+
+      - name: Run migrations
+        run: |
+          php artisan config:clear
+          php artisan migrate --force
+
+      - name: Run seeders
+        run: php artisan db:seed --force
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+
+  lint:
+    name: Code Style
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, zip, pdo, json, fileinfo
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Run Pint
+        run: vendor/bin/pint --test
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, zip, pdo, json, fileinfo
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction
+
+      - name: Run Pint (fix style)
+        run: vendor/bin/pint
