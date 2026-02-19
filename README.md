@@ -1,59 +1,243 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Smart Support Ticket System with AI Agent
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based backend API where users submit support tickets, and an AI Agent automatically categorizes the ticket, analyzes sentiment, and drafts a response.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- RESTful API for ticket management
+- AI-powered ticket analysis (category, sentiment, urgency)
+- Auto-generated suggested replies
+- Background job processing for AI analysis
+- JWT authentication via Laravel Sanctum
+- Swagger API documentation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2+
+- Composer
+- MySQL/PostgreSQL or SQLite
 
-## Learning Laravel
+## Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 1. Install Dependencies
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+composer install
+```
 
-## Laravel Sponsors
+### 2. Configure Environment
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-### Premium Partners
+### 3. Configure Database
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Edit `.env` with your database credentials:
 
-## Contributing
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 4. Run Migrations & Seeds
 
-## Code of Conduct
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5. (Optional) Configure OpenAI
 
-## Security Vulnerabilities
+To use real AI instead of mock:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```env
+OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_MODEL=gpt-3.5-turbo
+```
 
-## License
+If no API key is set, the system uses a mock AI service that simulates analysis.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 6. Start Development Server
+
+```bash
+php artisan serve
+```
+
+The API will be available at `http://localhost:8000`
+
+### 7. Queue Worker (for AI processing)
+
+```bash
+php artisan queue:listen
+```
+
+Or use sync mode for development:
+
+```env
+QUEUE_CONNECTION=sync
+```
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Login user |
+| GET | /api/auth/me | Get current user |
+| POST | /api/auth/logout | Logout user |
+
+### Tickets (require authentication)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/tickets | List user's tickets |
+| POST | /api/tickets | Create new ticket |
+| GET | /api/tickets/{id} | Get ticket details |
+| PUT | /api/tickets/{id} | Update ticket status |
+
+### API Documentation
+
+Swagger documentation is available at: `/api/documentation`
+
+## Example Usage
+
+### Register
+
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John","email":"john@example.com","password":"secret123"}'
+```
+
+### Login
+
+```bash
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john@example.com","password":"secret123"}'
+```
+
+### Create Ticket
+
+```bash
+curl -X POST http://localhost:8000/api/tickets \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"My computer is broken","description":"My computer is not working and I need help immediately."}'
+```
+
+### Get Ticket Details
+
+```bash
+curl -X GET http://localhost:8000/api/tickets/1 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Prompt Strategy
+
+The AI service uses a carefully crafted system prompt that:
+
+1. **Specifies JSON-only output**: The prompt explicitly instructs the AI to return only valid JSON with no markdown formatting
+2. **Defines exact categories**: Provides a fixed list of valid values for category, sentiment, and urgency from the database
+3. **Sets temperature to 0.3**: Low temperature ensures consistent, focused responses
+4. **Includes fallback handling**: If the AI returns malformed JSON, the service falls back to a rule-based mock analysis
+5. **Dynamic categories**: Categories are loaded from the database, allowing easy extension
+
+The prompt also instructs the AI to act as a "Helpful Customer Support Agent" to ensure the suggested replies are professional and empathetic.
+
+## Architecture
+
+```
+app/
+├── Contracts/          # Interfaces
+│   └── TicketRepositoryInterface.php
+├── Enums/              # Enumerations
+│   ├── AiStatus.php
+│   ├── TicketSentiment.php
+│   ├── TicketStatus.php
+│   └── TicketUrgency.php
+├── Http/
+│   ├── Controllers/Api/
+│   │   ├── AuthController.php
+│   │   └── TicketController.php
+│   └── Requests/
+│       ├── Auth/
+│       │   ├── LoginRequest.php
+│       │   └── RegisterRequest.php
+│       └── Ticket/
+│           ├── StoreTicketRequest.php
+│           └── UpdateTicketRequest.php
+├── Jobs/
+│   └── ProcessTicketJob.php
+├── Models/
+│   ├── Category.php
+│   ├── PromptSetting.php
+│   ├── Ticket.php
+│   └── User.php
+├── Repositories/
+│   └── TicketRepository.php
+└── Services/
+    ├── AiService.php
+    └── UserService.php
+```
+
+## Running Tests
+
+```bash
+# Run all tests
+php artisan test
+
+# Run specific test file
+php artisan test --filter=TicketApiTest
+php artisan test --filter=TicketAiProcessingTest
+php artisan test --filter=AuthApiTest
+```
+
+## Database Schema
+
+### tickets
+- id (bigint)
+- user_id (foreign key)
+- category_id (foreign key, nullable)
+- title (string)
+- description (text)
+- status (enum: open, in_progress, resolved, closed)
+- sentiment (enum: Positive, Neutral, Negative, nullable)
+- urgency (enum: low, medium, high, nullable)
+- suggested_reply (text, nullable)
+- ai_status (enum: queued, processing, completed, failed)
+- ai_error (text, nullable)
+- timestamps
+- soft_deletes
+
+### categories
+- id (bigint)
+- name (string)
+- slug (string)
+- description (text, nullable)
+- is_active (boolean)
+- timestamps
+
+### prompt_settings
+- id (bigint)
+- key (string, unique)
+- value (text)
+- description (text, nullable)
+- is_active (boolean)
+- timestamps
+
+## Technology Stack
+
+- **Framework**: Laravel 12
+- **Database**: MySQL
+- **Authentication**: Laravel Sanctum
+- **API Documentation**: Swagger (L5 Swagger)
+- **Queue**: Database queue (configurable)

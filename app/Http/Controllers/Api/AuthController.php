@@ -6,14 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Services\AuthService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
 {
     public function __construct(
-        private readonly AuthService $authService,
+        private readonly UserService $userService,
     ) {}
 
     #[OA\Post(
@@ -47,11 +49,13 @@ class AuthController extends Controller
     )]
     public function register(RegisterRequest $request)
     {
-        [$user, $token] = $this->authService->register(
+        $user = $this->userService->create(
             name: $request->validated('name'),
             email: $request->validated('email'),
             password: $request->validated('password'),
         );
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
             'user' => new UserResource($user),
@@ -89,10 +93,15 @@ class AuthController extends Controller
     )]
     public function login(LoginRequest $request)
     {
-        [$user, $token] = $this->authService->login(
-            email: $request->validated('email'),
-            password: $request->validated('password'),
-        );
+        $user = $this->userService->findByEmail($request->validated('email'));
+
+        if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => __('api.auth.invalid_credentials'),
+            ]);
+        }
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
             'user' => new UserResource($user),

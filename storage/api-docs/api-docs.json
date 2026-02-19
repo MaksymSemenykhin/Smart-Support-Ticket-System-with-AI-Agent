@@ -212,9 +212,461 @@
                     }
                 }
             }
+        },
+        "/api/tickets": {
+            "get": {
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "List all tickets for current user",
+                "operationId": "ddc3a5e66a83482e874c84e71ebc4505",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "status": {
+                                                        "type": "string"
+                                                    },
+                                                    "ai_status": {
+                                                        "type": "string"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "Create a new ticket",
+                "operationId": "2a7d76295d0f9f3e0e63adb2ed4a0596",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "My computer is broken"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "My computer is not working properly and I need help immediately."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "ticket": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "ai_status": {
+                                                    "type": "string"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tickets/{id}": {
+            "get": {
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "Get ticket by ID",
+                "operationId": "da5292e25da44db69ed981a43357753c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "title": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "category": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "sentiment": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "urgency": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "suggested_reply": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "ai_status": {
+                                            "type": "string"
+                                        },
+                                        "ai_error": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Ticket not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "Update ticket status",
+                "operationId": "481c9033970651aac1cee489857923ed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "open",
+                                            "in_progress",
+                                            "resolved",
+                                            "closed"
+                                        ],
+                                        "example": "resolved"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "ticket": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Ticket not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {
+        "schemas": {
+            "Category": {
+                "description": "Ticket category model",
+                "properties": {
+                    "id": {
+                        "description": "Category ID",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Category name",
+                        "type": "string"
+                    },
+                    "slug": {
+                        "description": "Category slug",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Category description",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "description": "Is category active",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "PromptSetting": {
+                "description": "AI prompt settings model",
+                "properties": {
+                    "id": {
+                        "description": "Setting ID",
+                        "type": "integer"
+                    },
+                    "key": {
+                        "description": "Setting key",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "Setting value",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Setting description",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "description": "Is setting active",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Ticket": {
+                "description": "Support ticket model",
+                "properties": {
+                    "id": {
+                        "description": "Ticket ID",
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "description": "User ID",
+                        "type": "integer"
+                    },
+                    "category_id": {
+                        "description": "Category ID",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "title": {
+                        "description": "Ticket title",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Ticket description",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Ticket status",
+                        "type": "string",
+                        "enum": [
+                            "open",
+                            "in_progress",
+                            "resolved",
+                            "closed"
+                        ]
+                    },
+                    "sentiment": {
+                        "description": "AI detected sentiment",
+                        "type": "string",
+                        "enum": [
+                            "Positive",
+                            "Neutral",
+                            "Negative"
+                        ],
+                        "nullable": true
+                    },
+                    "urgency": {
+                        "description": "AI detected urgency",
+                        "type": "string",
+                        "enum": [
+                            "low",
+                            "medium",
+                            "high"
+                        ],
+                        "nullable": true
+                    },
+                    "suggested_reply": {
+                        "description": "AI suggested reply",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "ai_status": {
+                        "description": "AI processing status",
+                        "type": "string",
+                        "enum": [
+                            "queued",
+                            "processing",
+                            "completed",
+                            "failed"
+                        ]
+                    },
+                    "ai_error": {
+                        "description": "AI processing error",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        },
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
@@ -231,6 +683,10 @@
         {
             "name": "System",
             "description": "System"
+        },
+        {
+            "name": "Tickets",
+            "description": "Tickets"
         }
     ]
 }

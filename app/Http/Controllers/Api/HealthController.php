@@ -25,6 +25,6 @@ class HealthController extends Controller
     )]
     public function show()
     {
-        return response()->json(['status' => 'ok']);
+        return response()->json(['status' => __('api.health.ok')]);
     }
 }
